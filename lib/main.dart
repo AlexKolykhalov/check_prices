@@ -60,6 +60,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     Size size = MediaQuery.of(context).size;
+    Orientation orientation = MediaQuery.of(context).orientation;
     return Scaffold(
       resizeToAvoidBottomInset: false,
       body: BlocConsumer<ProductsBloc, ProductsState>(
@@ -67,8 +68,11 @@ class _HomePageState extends State<HomePage> {
           if (state is ProductsLoaded) {
             if (state.data['errors'].isNotEmpty) {
               Scaffold.of(context)
-                ..showSnackBar(
-                    ErrorSnackBar(size: size, errors: state.data['errors']));
+                ..showSnackBar(ErrorSnackBar(
+                  size: size,
+                  orientation: orientation,
+                  errors: state.data['errors'],
+                ));
             }
           }
         },
@@ -140,6 +144,7 @@ class _HomePageState extends State<HomePage> {
                               size: size,
                               state: state,
                               index: index,
+                              orientation: orientation,
                             ),
                             itemCount: state.data['products'].length,
                           ),
@@ -163,13 +168,16 @@ class _HomePageState extends State<HomePage> {
 }
 
 class ErrorSnackBar extends SnackBar {
-  ErrorSnackBar({Key key, Size size, List<dynamic> errors})
+  ErrorSnackBar(
+      {Key key, Size size, Orientation orientation, List<dynamic> errors})
       : super(
           key: key,
           duration: Duration(seconds: 3),
           backgroundColor: Colors.white,
           content: Container(
-            height: size.height * 0.1,
+            height: (orientation == Orientation.portrait)
+                ? size.height * 0.1
+                : size.width * 0.1,
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -186,7 +194,11 @@ class ErrorSnackBar extends SnackBar {
                 Row(
                   mainAxisAlignment: MainAxisAlignment.start,
                   children: _listErrorWidgets(
-                      size: size.width * 0.08, errors: errors),
+                    size: (orientation == Orientation.portrait)
+                        ? size.width * 0.08
+                        : size.height * 0.08,
+                    errors: errors,
+                  ),
                 ),
               ],
             ),
@@ -264,11 +276,13 @@ class ListElement extends StatelessWidget {
     @required this.size,
     @required this.state,
     @required this.index,
+    @required this.orientation,
   }) : super(key: key);
 
   final Size size;
   final ProductsState state;
   final int index;
+  final Orientation orientation;
 
   @override
   Widget build(BuildContext context) {
@@ -278,7 +292,9 @@ class ListElement extends StatelessWidget {
       onLongPress: () => null,
       contentPadding: EdgeInsets.symmetric(horizontal: size.width * 0.02),
       leading: FaviconImage(
-        size: size.width * 0.1,
+        size: (orientation == Orientation.portrait)
+            ? size.width * 0.1
+            : size.height * 0.1,
         assetName: state.data['products'][index].logo,
       ),
       title: Text(state.data['products'][index].title),
