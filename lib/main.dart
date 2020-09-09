@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:check_prices/BLoC/keyboard/keyboard_cubit.dart';
+import 'package:check_prices/repo/data_providers.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_bloc/flutter_bloc.dart';
 
@@ -20,7 +21,8 @@ class MyApp extends StatelessWidget {
       home: MultiBlocProvider(
         providers: [
           BlocProvider(
-              create: (context) => ProductsBloc(repository: Repository())),
+              create: (context) => ProductsBloc(
+                  repository: Repository(dataProvider: DataProvider()))),
           BlocProvider(
             create: (context) => KeyboardCubit(),
           )
@@ -69,6 +71,7 @@ class _HomePageState extends State<HomePage> {
             if (state.data['errors'].isNotEmpty) {
               Scaffold.of(context)
                 ..showSnackBar(ErrorSnackBar(
+                  key: Key('_errorSnackBar'),
                   size: size,
                   orientation: orientation,
                   errors: state.data['errors'],
@@ -100,7 +103,6 @@ class _HomePageState extends State<HomePage> {
                             hintText: 'Поиск...',
                           ),
                           onTap: () {
-                            print('OnTap');
                             _cubit.readOnlyKeyboard(false);
                           },
                           onChanged: (value) {
@@ -126,7 +128,9 @@ class _HomePageState extends State<HomePage> {
                   () {
                     if (state is ProductsLoadInProgress) {
                       return Expanded(
-                          child: Center(child: CircularProgressIndicator()));
+                          child: Center(
+                              key: Key('_circularProgressIndicator'),
+                              child: CircularProgressIndicator()));
                     }
                     if (state is ProductsLoaded) {
                       if (state.data['products'].isEmpty) {
@@ -138,6 +142,7 @@ class _HomePageState extends State<HomePage> {
                       }
                       return Expanded(
                         child: Container(
+                          key: Key('_listView'),
                           width: size.width,
                           child: ListView.builder(
                             itemBuilder: (context, index) => ListElement(
@@ -223,6 +228,7 @@ class SuffixElement extends StatelessWidget {
     return Container(
       width: size.width * 0.1,
       child: IconButton(
+        key: Key('_closeIcon'),
         icon: Icon(Icons.close, color: Colors.grey),
         onPressed: () {
           controller.clear();
@@ -259,6 +265,7 @@ class SuffixElementFailure extends StatelessWidget {
             },
           ),
           IconButton(
+            key: Key('_refreshIcon'),
             icon: Icon(Icons.refresh, color: Colors.blueAccent),
             onPressed: () {
               bloc.add(ProductsFetched(search: controller.text));
