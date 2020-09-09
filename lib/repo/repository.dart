@@ -1,8 +1,13 @@
+import 'package:flutter/material.dart';
+
 import 'package:check_prices/models/models.dart';
 import 'package:check_prices/repo/data_providers.dart';
 
 class Repository {
-  final _dataProvider = DataProvider();
+  final DataProvider _dataProvider;
+
+  Repository({@required DataProvider dataProvider})
+      : _dataProvider = dataProvider;
 
   Future<Map<String, List<dynamic>>> fetchAll({String search}) async {
     Map<String, List<dynamic>> data = {'products': [], 'errors': []};

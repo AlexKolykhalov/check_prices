@@ -1,6 +1,7 @@
 import 'dart:async';
 
 import 'package:bloc/bloc.dart';
+import 'package:equatable/equatable.dart';
 import 'package:meta/meta.dart';
 import 'package:rxdart/rxdart.dart';
 
@@ -10,7 +11,7 @@ part 'products_event.dart';
 part 'products_state.dart';
 
 class ProductsBloc extends Bloc<ProductsEvent, ProductsState> {
-  ProductsBloc({this.repository}) : super(ProductsInitial());
+  ProductsBloc({@required this.repository}) : super(ProductsInitial());
   final Repository repository;
   Map<String, List<dynamic>> data;
 
