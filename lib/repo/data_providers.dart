@@ -64,4 +64,22 @@ class DataProvider extends Product with Requests {
 
     return mapProducts(result: result, shop: '5ka');
   }
+
+  Future<List<Product>> fetchAuchanData({String search}) async {
+    Map<String, String> headers = {'Content-type': 'application/json'};
+    //merchantId=15 (магазин в Москве Сокольники), магазина в Липецке нет по
+    // списку на https://www.auchan.ru/v1/shops
+
+    Uri urlSearch =
+        Uri.parse('https://auchan.ru/v1/search?query=$search&merchantId=15');
+
+    var response = await Requests.getHttp(url: urlSearch, headers: headers);
+    var result = jsonDecode(response.body)['items']
+        .values
+        .toList()[0]['products']
+        .take(10)
+        .toList();
+
+    return mapProducts(result: result, shop: 'auchan');
+  }
 }

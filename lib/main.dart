@@ -398,6 +398,12 @@ List<Widget> _listErrorWidgets({size, errors}) {
         assetName: 'assets/5ka_fav.png',
       ));
       _list.add(SizedBox(width: size));
+    } else if (error == 'auchan') {
+      _list.add(FaviconImage(
+        size: size,
+        assetName: 'assets/auchan_fav.png',
+      ));
+      _list.add(SizedBox(width: size));
     }
   }
   return _list;

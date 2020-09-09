@@ -38,6 +38,11 @@ class FakeDataProviderAllErrors extends Fake implements DataProvider {
   Future<List<Product>> fetch5kaData({String search}) {
     throw UnimplementedError();
   }
+
+  @override
+  Future<List<Product>> fetchAuchanData({String search}) {
+    throw UnimplementedError();
+  }
 }
 
 class FakeDataProviderAllGood extends Fake implements DataProvider {
@@ -55,6 +60,11 @@ class FakeDataProviderAllGood extends Fake implements DataProvider {
   Future<List<Product>> fetch5kaData({String search}) async {
     return [product];
   }
+
+  @override
+  Future<List<Product>> fetchAuchanData({String search}) async {
+    return [product];
+  }
 }
 
 void main() {
@@ -62,7 +72,7 @@ void main() {
   DataProvider fakeDataProviderAllGood;
   Repository repositoryAllErrors;
   Repository repositoryAllGood;
-  List<Product> matcherList = [product, product, product];
+  List<Product> matcherList = [product, product, product, product];
 
   setUp(() {
     fakeDataProviderAllErrors = FakeDataProviderAllErrors();
@@ -117,25 +127,25 @@ void main() {
     });
 
     test(
-        'emit {products: [], errors: [\'lenta\', \'metro\', \'5ka\']} when repository.fetchAll',
+        'emit {products: [], errors: [\'lenta\', \'metro\', \'5ka\', \'auchan\']} when repository.fetchAll',
         () async {
       Map<String, List<dynamic>> map =
           await repositoryAllErrors.fetchAll(search: '');
       expect(map, isA<Map<String, List<dynamic>>>());
       expect(map['products'].length, 0);
-      expect(map['errors'].length, 3);
-      expect(map['errors'], ['lenta', 'metro', '5ka']);
+      expect(map['errors'].length, 4);
+      expect(map['errors'], ['lenta', 'metro', '5ka', 'auchan']);
     });
 
     test(
-        'emit {products: [Product(), Product(), Product()], errors: []} when repository.fetchAll',
+        'emit {products: [Product(), Product(), Product(), Product()], errors: []} when repository.fetchAll',
         () async {
       Map<String, List<dynamic>> map =
           await repositoryAllGood.fetchAll(search: '');
 
       expect(map, isA<Map<String, List<dynamic>>>());
       expect(listEquals(map['products'], matcherList), true);
-      expect(map['products'].length == 3, true);
+      expect(map['products'].length == 4, true);
       expect(map['errors'].length, 0);
     });
   });
@@ -163,6 +173,9 @@ void main() {
       final uri5kaDomain = Uri.parse('https://5ka.ru');
       final uri5ka =
           Uri.parse('https://5ka.ru/api/v2/special_offers/?search=$search');
+      final uriAuchan =
+          Uri.parse('https://auchan.ru/v1/search?query=$search&merchantId=15');
+
       var response, json;
 
       test('lenta', () async {
@@ -208,6 +221,20 @@ void main() {
         expect(json[0].containsKey('id'), true);
         expect(json[0].containsKey('current_prices'), true);
         expect(json[0]['current_prices'].containsKey('price_promo__min'), true);
+      });
+
+      test('auchan', () async {
+        response = await Requests.getHttp(url: uriAuchan, headers: headers);
+        json = jsonDecode(response.body)['items']
+            .values
+            .toList()[0]['products']
+            .take(10)
+            .toList()[0];
+        expect(json.containsKey('name'), true);
+        expect(json.containsKey('code'), true);
+        expect(json.containsKey('brandName'), true);
+        expect(json.containsKey('price'), true);
+        expect(json['price'].containsKey('value'), true);
       });
     });
   });

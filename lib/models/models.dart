@@ -98,7 +98,7 @@ class ProductEntity {
             : [],
         logo: 'assets/metro_fav.png',
       );
-    } else {
+    } else if (shop == '5ka') {
       return ProductEntity(
         title: json['name'],
         subtitle: '',
@@ -108,6 +108,17 @@ class ProductEntity {
         regularPrice: updatePrice(json['current_prices']['price_promo__min']),
         cardPrice: [],
         logo: 'assets/5ka_fav.png',
+      );
+    } else {
+      return ProductEntity(
+        title: json['name'],
+        subtitle: '1 штука',
+        url: 'https://www.auchan.ru/product/' + json['code'],
+        imageUrl: '',
+        brand: json['brandName'],
+        regularPrice: updatePrice(json['price']['value']),
+        cardPrice: [],
+        logo: 'assets/auchan_fav.png',
       );
     }
   }

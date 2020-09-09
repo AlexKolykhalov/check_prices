@@ -11,7 +11,7 @@ class Repository {
 
   Future<Map<String, List<dynamic>>> fetchAll({String search}) async {
     Map<String, List<dynamic>> data = {'products': [], 'errors': []};
-    List<Product> lentaData, metroData, pkaData;
+    List<Product> lentaData, metroData, pkaData, auchanData;
     try {
       lentaData = await _dataProvider.fetchLentaData(search: search);
       data['products'].addAll(lentaData);
@@ -32,6 +32,13 @@ class Repository {
     } catch (e) {
       pkaData = [];
       data['errors'].add('5ka');
+    }
+    try {
+      auchanData = await _dataProvider.fetchAuchanData(search: search);
+      data['products'].addAll(auchanData);
+    } catch (e) {
+      auchanData = [];
+      data['errors'].add('auchan');
     }
     if (data['products'].isNotEmpty) {
       data['products'].sort((a, b) => a.title.compareTo(b.title));
