@@ -74,10 +74,10 @@ class ProductEntity {
         url: json['url'],
         imageUrl: json['imageUrl'],
         brand: json['brand'],
-        regularPrice: _updatePrice(json['regularPrice']['value']),
+        regularPrice: updatePrice(json['regularPrice']['value']),
         cardPrice: [
           CardPrice(
-              price: 'с картой ' + _updatePrice(json['cardPrice']['value']))
+              price: 'с картой ' + updatePrice(json['cardPrice']['value']))
         ],
         logo: 'assets/lenta_fav.png',
       );
@@ -91,10 +91,10 @@ class ProductEntity {
         brand: (json['manufacturer'].isNotEmpty)
             ? json['manufacturer']['name']
             : '',
-        regularPrice: _updatePrice(json['prices']['price']),
+        regularPrice: updatePrice(json['prices']['price']),
         cardPrice: (json['prices'].containsKey('levels'))
-            ? _list(json['prices']['levels'],
-                _updatePackingType(json['packing']['type']))
+            ? list(json['prices']['levels'],
+                updatePackingType(json['packing']['type']))
             : [],
         logo: 'assets/metro_fav.png',
       );
@@ -105,7 +105,7 @@ class ProductEntity {
         url: 'https://new.5ka.ru/special_offers/' + json['id'].toString(),
         imageUrl: '',
         brand: '',
-        regularPrice: _updatePrice(json['current_prices']['price_promo__min']),
+        regularPrice: updatePrice(json['current_prices']['price_promo__min']),
         cardPrice: [],
         logo: 'assets/5ka_fav.png',
       );
@@ -141,11 +141,11 @@ class CardPriceEntity {
   }
 }
 
-String _updatePrice(regularPrice) {
+String updatePrice(regularPrice) {
   return NumberFormat('#,##0.00').format(regularPrice.toDouble()) + ' руб.';
 }
 
-String _updatePackingType(packingType) {
+String updatePackingType(packingType) {
   if (packingType == 'штука' || packingType == 'штуки') {
     return ' шт ';
   } else if (packingType == 'упаковка' || packingType == 'упаковок') {
@@ -156,7 +156,7 @@ String _updatePackingType(packingType) {
   return packingType;
 }
 
-List<CardPrice> _list(array, packingType) {
+List<CardPrice> list(array, packingType) {
   return array
       .map<CardPrice>((element) =>
           CardPrice.fromEntity(CardPriceEntity.fromJson(element, packingType)))
