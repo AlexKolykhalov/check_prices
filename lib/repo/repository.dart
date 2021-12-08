@@ -1,48 +1,51 @@
-import 'package:flutter/material.dart';
+// import 'package:flutter/material.dart';
 
 import 'package:check_prices/models/models.dart';
 import 'package:check_prices/repo/data_providers.dart';
 
 class Repository {
-  final DataProvider _dataProvider;
-
-  Repository({@required DataProvider dataProvider})
+  Repository({required DataProvider dataProvider})
       : _dataProvider = dataProvider;
 
-  Future<Map<String, List<dynamic>>> fetchAll({String search}) async {
-    Map<String, List<dynamic>> data = {'products': [], 'errors': []};
-    List<Product> lentaData, metroData, pkaData, auchanData;
+  final DataProvider _dataProvider;
+
+  Future<List> fetchAll({required String search}) async {
+    List<Product> _products = [];
+    List<String> _errors = [];
+
     try {
-      lentaData = await _dataProvider.fetchLentaData(search: search);
-      data['products'].addAll(lentaData);
+      final List<Product> lentaData =
+          await _dataProvider.fetchLentaData(search: search);
+      _products.addAll(lentaData);
     } catch (e) {
-      lentaData = [];
-      data['errors'].add('lenta');
-    }
-    try {
-      metroData = await _dataProvider.fetchMetroData(search: search);
-      data['products'].addAll(metroData);
-    } catch (e) {
-      metroData = [];
-      data['errors'].add('metro');
+      _errors.add('lenta');
     }
     try {
-      pkaData = await _dataProvider.fetch5kaData(search: search);
-      data['products'].addAll(pkaData);
+      final List<Product> metroData =
+          await _dataProvider.fetchMetroData(search: search);
+      _products.addAll(metroData);
     } catch (e) {
-      pkaData = [];
-      data['errors'].add('5ka');
+      _errors.add('metro');
     }
     try {
-      auchanData = await _dataProvider.fetchAuchanData(search: search);
-      data['products'].addAll(auchanData);
+      final List<Product> pkaData =
+          await _dataProvider.fetch5kaData(search: search);
+      _products.addAll(pkaData);
     } catch (e) {
-      auchanData = [];
-      data['errors'].add('auchan');
+      _errors.add('5ka');
     }
-    if (data['products'].isNotEmpty) {
-      data['products'].sort((a, b) => a.title.compareTo(b.title));
+    try {
+      final List<Product> auchanData =
+          await _dataProvider.fetchAuchanData(search: search);
+      _products.addAll(auchanData);
+    } catch (e) {
+      _errors.add('auchan');
     }
-    return data;
+
+    if (_products.isNotEmpty) {
+      _products.sort((a, b) => a.title.compareTo(b.title));
+    }
+
+    return [_products, _errors];
   }
 }
