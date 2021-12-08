@@ -6,7 +6,10 @@ import 'package:http/http.dart' as http_client;
 
 ///Описывает общий request GET с конструкцией try catch
 mixin Requests {
-  static getHttp({Uri url, Map<String, String> headers}) async {
+  static getHttp({
+    required Uri url,
+    required Map<String, String> headers,
+  }) async {
     try {
       http_client.Response response = await http_client
           .get(url, headers: headers)
@@ -22,8 +25,18 @@ mixin Requests {
   }
 }
 
-class DataProvider extends Product with Requests {
-  Future<List<Product>> fetchLentaData({String search}) async {
+class DataProvider with Requests {
+  /// Функция, которая создает List из
+  /// результат запроса result к API магазина,
+  /// параметр shop 'lenta' или 'metro'
+  List<Product> mapProducts({result, shop}) {
+    return result
+        .map<Product>((element) =>
+            Product.fromEntity(ProductEntity.fromJson(element, shop)))
+        .toList();
+  }
+
+  Future<List<Product>> fetchLentaData({required String search}) async {
     Map<String, String> headers = {'Content-type': 'application/json'};
     Uri urlDomain = Uri.parse('https://lenta.com');
     Uri urlSearch = Uri.parse('https://lenta.com/api/v1/search?value=$search');
@@ -37,7 +50,7 @@ class DataProvider extends Product with Requests {
     return mapProducts(result: result, shop: 'lenta');
   }
 
-  Future<List<Product>> fetchMetroData({String search}) async {
+  Future<List<Product>> fetchMetroData({required String search}) async {
     Map<String, String> headers = {'Content-type': 'application/json'};
     Uri urlSearch = Uri.parse(
         'https://api.metro-cc.ru/api/v1/C98BB1B547ECCC17D8AEBEC7116D6/39/suggestions?query=$search');
@@ -48,7 +61,7 @@ class DataProvider extends Product with Requests {
     return mapProducts(result: result, shop: 'metro');
   }
 
-  Future<List<Product>> fetch5kaData({String search}) async {
+  Future<List<Product>> fetch5kaData({required String search}) async {
     Map<String, String> headers = {'Content-type': 'application/json'};
 
     Uri urlDomain = Uri.parse('https://5ka.ru');
@@ -65,7 +78,7 @@ class DataProvider extends Product with Requests {
     return mapProducts(result: result, shop: '5ka');
   }
 
-  Future<List<Product>> fetchAuchanData({String search}) async {
+  Future<List<Product>> fetchAuchanData({required String search}) async {
     Map<String, String> headers = {'Content-type': 'application/json'};
     //merchantId=15 (магазин в Москве Сокольники), магазина в Липецке нет по
     // списку на https://www.auchan.ru/v1/shops

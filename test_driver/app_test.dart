@@ -2,13 +2,13 @@ import 'package:flutter_driver/flutter_driver.dart';
 import 'package:test/test.dart';
 
 main() {
-  FlutterDriver driver;
+  late FlutterDriver driver;
 
   setUpAll(() async {
     driver = await FlutterDriver.connect();
   });
   tearDownAll(() {
-    driver?.close();
+    driver.close();
   });
 
   final SerializableFinder _textField = find.byType('TextField');
