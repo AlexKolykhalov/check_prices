@@ -1,6 +1,17 @@
 import 'package:intl/intl.dart';
 
 class Product {
+  const Product({
+    required this.title,
+    required this.subtitle,
+    required this.url,
+    required this.imageUrl,
+    required this.brand,
+    required this.regularPrice,
+    required this.cardPrice,
+    required this.logo,
+  });
+
   final String title;
   final String subtitle;
   final String url;
@@ -9,17 +20,6 @@ class Product {
   final String regularPrice;
   final List<CardPrice> cardPrice;
   final String logo;
-
-  Product({
-    this.title,
-    this.subtitle,
-    this.url,
-    this.imageUrl,
-    this.brand,
-    this.regularPrice,
-    this.cardPrice,
-    this.logo,
-  });
 
   static Product fromEntity(ProductEntity entity) {
     return Product(
@@ -33,19 +33,20 @@ class Product {
       logo: entity.logo,
     );
   }
-
-  /// Функция, которая создает List из
-  /// результат запроса result к API магазина,
-  /// параметр shop 'lenta' или 'metro'
-  List<Product> mapProducts({result, shop}) {
-    return result
-        .map<Product>((element) =>
-            Product.fromEntity(ProductEntity.fromJson(element, shop)))
-        .toList();
-  }
 }
 
 class ProductEntity {
+  ProductEntity({
+    required this.title,
+    required this.subtitle,
+    required this.url,
+    required this.imageUrl,
+    required this.brand,
+    required this.regularPrice,
+    required this.cardPrice,
+    required this.logo,
+  });
+
   final String title;
   final String subtitle;
   final String url;
@@ -54,17 +55,6 @@ class ProductEntity {
   final String regularPrice;
   final List<CardPrice> cardPrice;
   final String logo;
-
-  ProductEntity({
-    this.title,
-    this.subtitle,
-    this.url,
-    this.imageUrl,
-    this.brand,
-    this.regularPrice,
-    this.cardPrice,
-    this.logo,
-  });
 
   static ProductEntity fromJson(Map<String, dynamic> json, String shop) {
     if (shop == 'lenta') {
@@ -79,7 +69,7 @@ class ProductEntity {
           CardPrice(
               price: 'с картой ' + updatePrice(json['cardPrice']['value']))
         ],
-        logo: 'assets/lenta_fav.png',
+        logo: 'lenta',
       );
     } else if (shop == 'metro') {
       return ProductEntity(
@@ -93,10 +83,13 @@ class ProductEntity {
             : '',
         regularPrice: updatePrice(json['prices']['price']),
         cardPrice: (json['prices'].containsKey('levels'))
-            ? list(json['prices']['levels'],
-                updatePackingType(json['packing']['type']))
+            ? json['prices']['levels']
+                .map<CardPrice>((element) => CardPrice.fromEntity(
+                    CardPriceEntity.fromJson(
+                        element, updatePackingType(json['packing']['type']))))
+                .toList()
             : [],
-        logo: 'assets/metro_fav.png',
+        logo: 'metro',
       );
     } else if (shop == '5ka') {
       return ProductEntity(
@@ -107,7 +100,7 @@ class ProductEntity {
         brand: '',
         regularPrice: updatePrice(json['current_prices']['price_promo__min']),
         cardPrice: [],
-        logo: 'assets/5ka_fav.png',
+        logo: '5ka',
       );
     } else {
       return ProductEntity(
@@ -118,16 +111,16 @@ class ProductEntity {
         brand: json['brandName'],
         regularPrice: updatePrice(json['price']['value']),
         cardPrice: [],
-        logo: 'assets/auchan_fav.png',
+        logo: 'auchan',
       );
     }
   }
 }
 
 class CardPrice {
-  final String price;
+  CardPrice({required this.price});
 
-  CardPrice({this.price});
+  final String price;
 
   static CardPrice fromEntity(CardPriceEntity entity) {
     return CardPrice(
@@ -137,9 +130,9 @@ class CardPrice {
 }
 
 class CardPriceEntity {
-  final String price;
+  CardPriceEntity({required this.price});
 
-  CardPriceEntity({this.price});
+  final String price;
 
   static fromJson(Map<String, dynamic> json, String packingType) {
     return CardPriceEntity(
@@ -152,11 +145,11 @@ class CardPriceEntity {
   }
 }
 
-String updatePrice(regularPrice) {
+String updatePrice(double regularPrice) {
   return NumberFormat('#,##0.00').format(regularPrice.toDouble()) + ' руб.';
 }
 
-String updatePackingType(packingType) {
+String updatePackingType(String packingType) {
   if (packingType == 'штука' || packingType == 'штуки') {
     return ' шт ';
   } else if (packingType == 'упаковка' || packingType == 'упаковок') {
@@ -167,9 +160,9 @@ String updatePackingType(packingType) {
   return packingType;
 }
 
-List<CardPrice> list(array, packingType) {
-  return array
-      .map<CardPrice>((element) =>
-          CardPrice.fromEntity(CardPriceEntity.fromJson(element, packingType)))
-      .toList();
-}
+// List<CardPrice> list(array, packingType) {
+//   return array
+//       .map<CardPrice>((element) =>
+//           CardPrice.fromEntity(CardPriceEntity.fromJson(element, packingType)))
+//       .toList();
+// }
